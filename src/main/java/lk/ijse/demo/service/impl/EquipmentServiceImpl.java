@@ -96,7 +96,35 @@ public class EquipmentServiceImpl implements EquipmentService {
             equipmentDAO.deleteById(id);
         }
     }
-
+    @Override
+    public void updateEquipment(String id, EquipmentDTO equipmentDTO) {
+        Optional<EquipmentEntity> tmpEquipment = equipmentDAO.findById(id);
+        if (tmpEquipment.isPresent()){
+            tmpEquipment.get().setName(equipmentDTO.getName());
+            tmpEquipment.get().setType(equipmentDTO.getType());
+            tmpEquipment.get().setStatus(equipmentDTO.getStatus());
+            tmpEquipment.get().setAvailableCount(equipmentDTO.getAvailableCount());
+            List<FieldEntity> fieldEntities = new ArrayList<>();
+            List<StaffEntity> staffEntities = new ArrayList<>();
+            for (String fieldCode : equipmentDTO.getFieldList()){
+                fieldEntities.add(fieldDAO.getReferenceById(fieldCode));
+            }
+            for (String staffCode : equipmentDTO.getStaffCodeList()){
+                staffEntities.add(staffDAO.getReferenceById(staffCode));
+            }
+            EquipmentEntity equipmentEntity = mapping.toEquipmentEntity(equipmentDTO);
+            equipmentEntity.setFieldList(fieldEntities);
+            equipmentEntity.setStaffCodeList(staffEntities);
+            for (FieldEntity field:fieldEntities){
+                field.getEquipmentsList().add(equipmentEntity);
+            }
+            for (StaffEntity staffs:staffEntities){
+                staffs.getEquipmentList().add(equipmentEntity);
+            }
+            tmpEquipment.get().setFieldList(equipmentEntity.getFieldList());
+            tmpEquipment.get().setStaffCodeList(equipmentEntity.getStaffCodeList());
+        }
+    }
 
 
 }
