@@ -7,10 +7,7 @@ import lk.ijse.demo.dao.FieldDAO;
 import lk.ijse.demo.dao.StaffDAO;
 import lk.ijse.demo.dto.FieldStatus;
 import lk.ijse.demo.dto.impl.FieldDTO;
-import lk.ijse.demo.entity.impl.CropEntity;
-import lk.ijse.demo.entity.impl.EquipmentEntity;
-import lk.ijse.demo.entity.impl.FieldEntity;
-import lk.ijse.demo.entity.impl.StaffEntity;
+import lk.ijse.demo.entity.impl.*;
 import lk.ijse.demo.exception.DataPersistException;
 import lk.ijse.demo.exception.FieldNotFoundException;
 import lk.ijse.demo.service.FieldService;
@@ -84,7 +81,22 @@ public class FieldServiceImpl implements FieldService {
 
     @Override
     public List<FieldDTO> getAllField() throws IOException, ClassNotFoundException {
-        return null;
+        List<FieldDTO> fieldDTOS = new ArrayList<>();
+        for (FieldEntity fieldEntity : fieldDAO.findAll()){
+            List<String> staffCode = new ArrayList<>();
+            List<String> logCode = new ArrayList<>();
+            for (StaffEntity staffEntity : fieldEntity.getStaffList()){
+                staffCode.add(staffEntity.getMemberCode());
+            }
+            for (LogEntity logEntity :fieldEntity.getLogList()){
+                logCode.add(logEntity.getLogCode());
+            }
+            FieldDTO fieldDTO = mapping.toGetAllFieldDTO(fieldEntity);
+            fieldDTO.setMemberCodeList(staffCode);
+            fieldDTO.setLogCodeList(logCode);
+            fieldDTOS.add(fieldDTO);
+        }
+        return fieldDTOS;
     }
 
     @Override
