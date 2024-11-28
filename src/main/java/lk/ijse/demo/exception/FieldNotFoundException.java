@@ -1,6 +1,6 @@
 package lk.ijse.demo.exception;
 
-public class FieldNotFoundException {
+public class FieldNotFoundException extends Throwable {
     public FieldNotFoundException() {
 
     }
