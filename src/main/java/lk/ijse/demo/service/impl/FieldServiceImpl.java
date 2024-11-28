@@ -7,6 +7,7 @@ import lk.ijse.demo.dao.StaffDAO;
 import lk.ijse.demo.dto.FieldStatus;
 import lk.ijse.demo.dto.impl.FieldDTO;
 import lk.ijse.demo.entity.impl.CropEntity;
+import lk.ijse.demo.entity.impl.EquipmentEntity;
 import lk.ijse.demo.entity.impl.FieldEntity;
 import lk.ijse.demo.entity.impl.StaffEntity;
 import lk.ijse.demo.exception.DataPersistException;
@@ -87,7 +88,21 @@ public class FieldServiceImpl implements FieldService {
 
     @Override
     public void deleteField(String id) throws FileNotFoundException, FieldNotFoundException {
-
+        Optional<FieldEntity> selectedField = fieldDAO.findById(id);
+        if (fieldDAO.existsById(id)){
+            FieldEntity fieldEntity = fieldDAO.getReferenceById(id);
+            List<EquipmentEntity> equipmentEntities = fieldEntity.getEquipmentsList();
+            for (EquipmentEntity equipmentEntity:equipmentEntities){
+                List<FieldEntity> fields = equipmentEntity.getFieldList();
+                fields.remove(fieldEntity);
+            }
+            fieldEntity.getEquipmentsList().clear();
+        }
+        if (!selectedField.isPresent()){
+            throw new FieldNotFoundException(" Id " + id + "Not Found");
+        }else {
+            fieldDAO.deleteById(id);
+        }
     }
 
     @Override
