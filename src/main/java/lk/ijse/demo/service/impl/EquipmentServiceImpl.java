@@ -87,7 +87,15 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
 
-
+    @Override
+    public void deleteEquipment(String id) {
+        Optional<EquipmentEntity> selectedEquipment = equipmentDAO.findById(id);
+        if (!selectedEquipment.isPresent()){
+            throw new EquipmentNotFoundException("Id " + id + "Not Found");
+        }else {
+            equipmentDAO.deleteById(id);
+        }
+    }
 
 
 
