@@ -1,4 +1,4 @@
-package lk.ijse.demo.entity.impl;
+package lk.ijse.demo.entity.impl;//package lk.ijse.demo.entity.impl;
 //
 //import jakarta.persistence.*;
 //import lombok.AllArgsConstructor;
