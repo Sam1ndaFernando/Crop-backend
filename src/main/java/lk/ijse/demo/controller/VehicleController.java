@@ -2,7 +2,9 @@ package lk.ijse.demo.controller;
 
 import lk.ijse.demo.dto.impl.VehicleDTO;
 import lk.ijse.demo.exception.DataPersistException;
+import lk.ijse.demo.exception.VehicleNotFoundException;
 import lk.ijse.demo.service.VehicleService;
+import lk.ijse.demo.util.Regex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,7 +52,21 @@ public class VehicleController {
         }
     }
 
-
+    @DeleteMapping(value = "/{vehicleId}")
+    public ResponseEntity<Void> deleteVehicle(@PathVariable ("vehicleId") String vehicleId){
+        try{
+            if (!Regex.idValidator(vehicleId).matches()){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            vehicleService.deleteVehicle(vehicleId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }catch (VehicleNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
 }
