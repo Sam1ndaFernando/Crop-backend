@@ -1,6 +1,7 @@
 package lk.ijse.demo.service.impl;
 
 import jakarta.transaction.Transactional;
+import lk.ijse.demo.customerStatusCode.SelectedErrorStatus;
 import lk.ijse.demo.dao.CropDAO;
 import lk.ijse.demo.dao.FieldDAO;
 import lk.ijse.demo.dao.StaffDAO;
@@ -129,6 +130,10 @@ public class FieldServiceImpl implements FieldService {
 
     @Override
     public FieldStatus getSelectedField(String fieldId) {
-        return null;
+        if (fieldDAO.existsById(fieldId)){
+            return mapping.toFieldDTO(fieldDAO.getReferenceById(fieldId));
+        }else {
+            return new SelectedErrorStatus(2,"Field With Code "+fieldId+" Not Found");
+        }
     }
 }
