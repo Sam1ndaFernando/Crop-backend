@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-
 @Component
 public class Mapping {
     @Autowired
@@ -115,7 +114,4 @@ public class Mapping {
         return modelMapper.map(vehicleEntity,new TypeToken<List<VehicleDTO>>(){}.getType());
     }
 
-//    public StaffEquipmentDetailsEntity toStaffEquDetailsEntity(StaffEquipmentDetailsDTO staffEquDTO){
-//        return modelMapper.map(staffEquDTO,StaffEquipmentDetailsEntity.class);
-//    }
 }
