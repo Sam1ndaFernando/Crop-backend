@@ -80,15 +80,56 @@ public class FieldServiceImpl implements FieldService {
 
 
     @Override
+    public void updateField(String id, FieldDTO fieldDTO) {
+        Optional<FieldEntity> byId = fieldDAO.findById(id);
+        if (byId.isPresent()) {
+            byId.get().setName(fieldDTO.getName());
+            byId.get().setLocation(fieldDTO.getLocation());
+            byId.get().setExtentSize(fieldDTO.getExtentSize());
+            byId.get().setFieldImage1(fieldDTO.getFieldImage1());
+            byId.get().setFieldImage2(fieldDTO.getFieldImage2());
+            List<CropEntity> cropEntities = new ArrayList<>();
+            List<StaffEntity> staffEntities = new ArrayList<>();
+            for (String cropCode : fieldDTO.getCropCodeList()) {
+                cropEntities.add(cropDAO.getReferenceById(cropCode));
+            }
+            for (String memberCode : fieldDTO.getMemberCodeList()) {
+                staffEntities.add(staffDAO.getReferenceById(memberCode));
+            }
+            byId.get().setCropList(cropEntities);
+            byId.get().setStaffList(staffEntities);
+        }
+    }
+
+    @Override
+    public void deleteField(String id) throws FileNotFoundException, FieldNotFoundException {
+        Optional<FieldEntity> selectedField = fieldDAO.findById(id);
+        if (fieldDAO.existsById(id)) {
+            FieldEntity fieldEntity = fieldDAO.getReferenceById(id);
+            List<EquipmentEntity> equipmentEntities = fieldEntity.getEquipmentsList();
+            for (EquipmentEntity equipmentEntity : equipmentEntities) {
+                List<FieldEntity> fields = equipmentEntity.getFieldList();
+                fields.remove(fieldEntity);
+            }
+            fieldEntity.getEquipmentsList().clear();
+        }
+        if (!selectedField.isPresent()) {
+            throw new FieldNotFoundException(" Id " + id + "Not Found");
+        } else {
+            fieldDAO.deleteById(id);
+        }
+    }
+
+    @Override
     public List<FieldDTO> getAllField() throws IOException, ClassNotFoundException {
         List<FieldDTO> fieldDTOS = new ArrayList<>();
-        for (FieldEntity fieldEntity : fieldDAO.findAll()){
+        for (FieldEntity fieldEntity : fieldDAO.findAll()) {
             List<String> staffCode = new ArrayList<>();
             List<String> logCode = new ArrayList<>();
-            for (StaffEntity staffEntity : fieldEntity.getStaffList()){
+            for (StaffEntity staffEntity : fieldEntity.getStaffList()) {
                 staffCode.add(staffEntity.getMemberCode());
             }
-            for (LogEntity logEntity :fieldEntity.getLogList()){
+            for (LogEntity logEntity : fieldEntity.getLogList()) {
                 logCode.add(logEntity.getLogCode());
             }
             FieldDTO fieldDTO = mapping.toGetAllFieldDTO(fieldEntity);
@@ -99,53 +140,14 @@ public class FieldServiceImpl implements FieldService {
         return fieldDTOS;
     }
 
-    @Override
-    public void deleteField(String id) throws FileNotFoundException, FieldNotFoundException {
-        Optional<FieldEntity> selectedField = fieldDAO.findById(id);
-        if (fieldDAO.existsById(id)){
-            FieldEntity fieldEntity = fieldDAO.getReferenceById(id);
-            List<EquipmentEntity> equipmentEntities = fieldEntity.getEquipmentsList();
-            for (EquipmentEntity equipmentEntity:equipmentEntities){
-                List<FieldEntity> fields = equipmentEntity.getFieldList();
-                fields.remove(fieldEntity);
-            }
-            fieldEntity.getEquipmentsList().clear();
-        }
-        if (!selectedField.isPresent()){
-            throw new FieldNotFoundException(" Id " + id + "Not Found");
-        }else {
-            fieldDAO.deleteById(id);
-        }
-    }
-
-    @Override
-    public void updateField(String id, FieldDTO fieldDTO) {
-        Optional<FieldEntity> byId = fieldDAO.findById(id);
-        if (byId.isPresent()){
-            byId.get().setName(fieldDTO.getName());
-            byId.get().setLocation(fieldDTO.getLocation());
-            byId.get().setExtentSize(fieldDTO.getExtentSize());
-            byId.get().setFieldImage1(fieldDTO.getFieldImage1());
-            byId.get().setFieldImage2(fieldDTO.getFieldImage2());
-            List<CropEntity> cropEntities = new ArrayList<>();
-            List<StaffEntity> staffEntities = new ArrayList<>();
-            for (String cropCode:fieldDTO.getCropCodeList()){
-                cropEntities.add(cropDAO.getReferenceById(cropCode));
-            }
-            for (String memberCode:fieldDTO.getMemberCodeList()){
-                staffEntities.add(staffDAO.getReferenceById(memberCode));
-            }
-            byId.get().setCropList(cropEntities);
-            byId.get().setStaffList(staffEntities);
-        }
-    }
 
     @Override
     public FieldStatus getSelectedField(String fieldId) {
-        if (fieldDAO.existsById(fieldId)){
+        if (fieldDAO.existsById(fieldId)) {
             return mapping.toFieldDTO(fieldDAO.getReferenceById(fieldId));
-        }else {
-            return new SelectedErrorStatus(2,"Field With Code "+fieldId+" Not Found");
+        } else {
+            return new SelectedErrorStatus(2, "Field With Code " + fieldId + " Not Found");
         }
     }
+
 }
