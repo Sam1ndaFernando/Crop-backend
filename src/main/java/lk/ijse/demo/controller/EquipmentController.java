@@ -3,7 +3,9 @@ package lk.ijse.demo.controller;
 
 import lk.ijse.demo.dto.impl.EquipmentDTO;
 import lk.ijse.demo.exception.DataPersistException;
+import lk.ijse.demo.exception.EquipmentNotFoundException;
 import lk.ijse.demo.service.EquipmentService;
+import lk.ijse.demo.util.Regex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,5 +45,19 @@ public class EquipmentController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @DeleteMapping(value = "/{equipmentId}")
+    public ResponseEntity<Void> deleteEquipment(@PathVariable ("equipmentId") String equipmentId){
+        try{
+            if (!Regex.idValidator(equipmentId).matches()){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            equipmentService.deleteEquipment(equipmentId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }catch (EquipmentNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
