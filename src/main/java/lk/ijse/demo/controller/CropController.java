@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,5 +77,23 @@ public class CropController {
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @PutMapping(value = "/{cropId}")
+    public void updateCrop(
+            @PathVariable("cropId") String cropId,
+            @RequestPart("cropName") String cropName,
+            @RequestPart("scientificName") String scientificName,
+            @RequestPart("category") String category,
+            @RequestPart("season") String season,
+            @RequestPart("cropImage") MultipartFile cropImage
+    ) throws IOException {
+        CropDTO cropDTO = new CropDTO();
+        cropDTO.setCropCode(cropId);
+        cropDTO.setCropName(cropName);
+        cropDTO.setScientificName(scientificName);
+        cropDTO.setCategory(category);
+        cropDTO.setSeason(season);
+        cropDTO.setCropImage(IdGenerate.imageBase64(cropImage.getBytes()));
+        cropService.updateCrop(cropId,cropDTO);
     }
 }
