@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping("api/v1/crops")
 @CrossOrigin
 public class CropController {
-     @Autowired
+    @Autowired
     private CropService cropService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -33,12 +33,12 @@ public class CropController {
             @RequestPart("season") String season,
             @RequestPart("cropImage") MultipartFile cropImage,
             @RequestPart("fieldList") String fieldList
-           // @RequestPart("fieldList") List<String> fieldList
+            // @RequestPart("fieldList") List<String> fieldList
     ) {
-        try{
-            List<String>fieldCodes=new ArrayList<>();
-            if (fieldList!=null){
-                fieldCodes= IdListConverter.spiltLists(fieldList);
+        try {
+            List<String> fieldCodes = new ArrayList<>();
+            if (fieldList != null) {
+                fieldCodes = IdListConverter.spiltLists(fieldList);
             }
             var cropDTO = new CropDTO();
             cropDTO.setCropName(cropName);
@@ -47,34 +47,34 @@ public class CropController {
             cropDTO.setSeason(season);
             cropDTO.setCropImage(IdGenerate.imageBase64(cropImage.getBytes()));
             cropDTO.setFieldCodeList(fieldCodes);
-           // cropDTO.setFieldCodeList(fieldList);
+            // cropDTO.setFieldCodeList(fieldList);
             cropService.saveCrop(cropDTO);
             return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch (DataPersistException e){
+        } catch (DataPersistException e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<CropDTO> getAllCrops(){
+    public List<CropDTO> getAllCrops() {
         return cropService.getAllCrop();
     }
 
     @DeleteMapping(value = "/{cropId}")
     public ResponseEntity<Void> deleteCrop(@PathVariable("cropId") String cropId) {
         try {
-            if (!Regex.idValidator(cropId).matches()){
+            if (!Regex.idValidator(cropId).matches()) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             cropService.deleteCrop(cropId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }catch (CropNotFoundException e){
+        } catch (CropNotFoundException e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -94,6 +94,6 @@ public class CropController {
         cropDTO.setCategory(category);
         cropDTO.setSeason(season);
         cropDTO.setCropImage(IdGenerate.imageBase64(cropImage.getBytes()));
-        cropService.updateCrop(cropId,cropDTO);
+        cropService.updateCrop(cropId, cropDTO);
     }
 }
