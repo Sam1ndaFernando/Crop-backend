@@ -1,6 +1,8 @@
 package lk.ijse.demo.controller;
 
 
+import lk.ijse.demo.customerStatusCode.SelectedErrorStatus;
+import lk.ijse.demo.dto.EquipmentStatus;
 import lk.ijse.demo.dto.impl.EquipmentDTO;
 import lk.ijse.demo.exception.DataPersistException;
 import lk.ijse.demo.exception.EquipmentNotFoundException;
@@ -59,5 +61,12 @@ public class EquipmentController {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @GetMapping(value = "/{equipmentId}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public EquipmentStatus getSelectedEquipment(@PathVariable("equipmentId") String equipmentId){
+        if (!Regex.idValidator(equipmentId).matches()){
+            return new SelectedErrorStatus(1,"Equipment Code Not Valid");
+        }
+        return equipmentService.getSelectedEquipment(equipmentId);
     }
 }
