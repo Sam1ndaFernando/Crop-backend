@@ -1,4 +1,5 @@
 package lk.ijse.demo.controller;
+import lk.ijse.demo.dto.FieldStatus;
 import lk.ijse.demo.dto.impl.FieldDTO;
 import lk.ijse.demo.exception.DataPersistException;
 import lk.ijse.demo.service.FieldService;
@@ -73,5 +74,8 @@ public class FieldController {
         }
     }
 
-
+    @GetMapping(value = "/{fieldId}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public FieldStatus getSelectedField(@PathVariable("fieldId") String fieldId){
+        return fieldService.getSelectedField(fieldId);
+    }
 }
