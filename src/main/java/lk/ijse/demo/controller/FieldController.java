@@ -20,6 +20,8 @@ import java.util.List;
 public class FieldController {
     @Autowired
     private FieldService fieldService;
+
+    //    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> saveField(
             @RequestPart("name") String fieldName,
@@ -27,10 +29,10 @@ public class FieldController {
             @RequestPart("extentSize") String extentSize,
             @RequestPart("fieldImage1") MultipartFile fieldImage1,
             @RequestPart("fieldImage2") MultipartFile fieldImage2,
-//            @RequestPart("staffList") List<String> staffList,
-//            @RequestPart("cropList") List<String> cropList
-             @RequestPart("staffList") String staffList,
+            @RequestPart("staffList") String staffList,
             @RequestPart("cropList") String cropList
+            // @RequestPart("equipmentId")String equipmentList
+
     ) {
         try {
             List<String> staffCode = new ArrayList<>();
@@ -41,6 +43,10 @@ public class FieldController {
             if (cropList!=null){
                 cropCode=IdListConverter.spiltLists(cropList);
             }
+//            List<String>eid=new ArrayList<>();
+//            if (equipmentList!=null){
+//                eid=IdListConverter.spiltLists(equipmentList);
+//            }
 
             var fieldDTO = new FieldDTO();
             fieldDTO.setName(fieldName);
@@ -54,6 +60,7 @@ public class FieldController {
 //            fieldDTO.setCropCodeList(cropCode);
             fieldDTO.setCropCodeList(staffCode); // Fixed assigning staff codes
             fieldDTO.setMemberCodeList(cropCode); // Correctly assigns crop codes
+            // fieldDTO.setEquipmentsList(eid); //
 
             fieldService.saveField(fieldDTO);
             return new ResponseEntity<>(HttpStatus.CREATED);
