@@ -1,11 +1,13 @@
 package lk.ijse.demo.controller;
 
+import jakarta.annotation.security.RolesAllowed;
 import lk.ijse.demo.dto.LogStatus;
 import lk.ijse.demo.dto.impl.LogDTO;
 import lk.ijse.demo.exception.DataPersistException;
 import lk.ijse.demo.service.LogService;
 import lk.ijse.demo.util.IdGenerate;
 import lk.ijse.demo.util.IdListConverter;
+import lk.ijse.demo.util.Regex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -71,5 +73,84 @@ public class LogController {
 
         return null;
     }
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @RolesAllowed({"MANAGER","ADMINISTRATIVE","SCIENTIST"})
+    public List<LogDTO> getAllLog(){
+        return logService.getAllLog();
+    }
 
+    @DeleteMapping(value = "/{logId}")
+//    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
+    public ResponseEntity<Void> deleteLog(@PathVariable ("logId") String logId){
+        try {
+            if (!Regex.idValidator(logId).matches()){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            logService.deleteLog(logId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping(value = "/{logId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
+    public ResponseEntity<Void> updateLog(
+            @PathVariable(value = "logId") String logId,
+            @RequestParam(value = "date") String date,
+            @RequestParam(value = "logDetails") String logDetails,
+            @RequestParam(value = "observedImage") MultipartFile observedImage,
+            @RequestParam(value = "staffList") String staffList,
+            @RequestParam(value = "cropList") String cropList,
+            @RequestParam(value = "fieldList") String fieldList
+    ) throws IOException {
+        List<String> staffId = new ArrayList<>();
+        List<String> cropId = new ArrayList<>();
+        List<String> fieldId = new ArrayList<>();
+
+        if (staffList != null) {
+            staffId = IdListConverter.spiltLists(staffList);
+        }
+        if (cropList != null) {
+            cropId = IdListConverter.spiltLists(cropList);
+        }
+        if (fieldList != null) {
+            fieldId = IdListConverter.spiltLists(fieldList);
+        }
+        String base64Img1;
+        byte[] bytes = observedImage.getBytes();
+
+        base64Img1 = IdGenerate.imageBase64(bytes);
+//        LogDTO logDTO = new LogDTO(
+//                logId,
+//                date,
+//                logDetails,
+//                base64Img1,
+//                new ArrayList<>(),staffId,
+//                new ArrayList<>(),cropId,
+//                new ArrayList<>(),fieldId
+//        );
+
+        try {
+            //  logService.updateLog(logId, logDTO);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (DataPersistException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+
+//        LogDTO logDTO = new LogDTO();
+//        logDTO.setLogCode(logId);
+//        logDTO.setDate(date);
+//        logDTO.setLogDetails(logDetails);
+//        logDTO.setObservedImage(observedImage);
+//        logDTO.setStaffList(staffList);
+//        logDTO.setCropList(cropList);
+//        logDTO.setFieldList(fieldList);
+//        logService.updateLog(logId,logDTO);
+//        System.out.println(logDTO);
+
+    }
 }
