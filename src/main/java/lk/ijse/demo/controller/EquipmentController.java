@@ -1,6 +1,5 @@
 package lk.ijse.demo.controller;
 
-
 import lk.ijse.demo.customerStatusCode.SelectedErrorStatus;
 import lk.ijse.demo.dto.EquipmentStatus;
 import lk.ijse.demo.dto.impl.EquipmentDTO;
@@ -18,62 +17,72 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/equipment")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:63343") // Allow requests from this specific origin
 public class EquipmentController {
+
     @Autowired
     private EquipmentService equipmentService;
 
+    // Save Equipment
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> saveEquipment(@RequestBody EquipmentDTO equipmentDTO){
-        try{
+    public ResponseEntity<Void> saveEquipment(@RequestBody EquipmentDTO equipmentDTO) {
+        try {
             equipmentService.saveEquipment(equipmentDTO);
             return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch (DataPersistException e){
+        } catch (DataPersistException e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PutMapping(value = "/{equipmentId}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> updateEquipment(@PathVariable ("equipmentId") String equipmentId ,@RequestBody EquipmentDTO equipmentDTO){
-        try{
-            equipmentService.updateEquipment(equipmentId,equipmentDTO);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch (DataPersistException e){
+
+    // Update Equipment
+    @PutMapping(value = "/{equipmentId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> updateEquipment(@PathVariable("equipmentId") String equipmentId, @RequestBody EquipmentDTO equipmentDTO) {
+        try {
+            equipmentService.updateEquipment(equipmentId, equipmentDTO);
+            return new ResponseEntity<>(HttpStatus.OK); // OK when updating
+        } catch (DataPersistException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // Delete Equipment
     @DeleteMapping(value = "/{equipmentId}")
-    public ResponseEntity<Void> deleteEquipment(@PathVariable ("equipmentId") String equipmentId){
-        try{
-            if (!Regex.idValidator(equipmentId).matches()){
+    public ResponseEntity<Void> deleteEquipment(@PathVariable("equipmentId") String equipmentId) {
+        try {
+            if (!Regex.idValidator(equipmentId).matches()) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             equipmentService.deleteEquipment(equipmentId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }catch (EquipmentNotFoundException e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // No content after successful deletion
+        } catch (EquipmentNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // If not found
+        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @GetMapping(value = "/{equipmentId}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public EquipmentStatus getSelectedEquipment(@PathVariable("equipmentId") String equipmentId){
-        if (!Regex.idValidator(equipmentId).matches()){
-            return new SelectedErrorStatus(1,"Equipment Code Not Valid");
+
+    // Get Equipment by ID
+    @GetMapping(value = "/{equipmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<EquipmentStatus> getSelectedEquipment(@PathVariable("equipmentId") String equipmentId) {
+        if (!Regex.idValidator(equipmentId).matches()) {
+            return new ResponseEntity<>(new SelectedErrorStatus(1, "Equipment Code Not Valid"), HttpStatus.BAD_REQUEST);
         }
-        return equipmentService.getSelectedEquipment(equipmentId);
+        EquipmentStatus equipmentStatus = equipmentService.getSelectedEquipment(equipmentId);
+        return new ResponseEntity<>(equipmentStatus, HttpStatus.OK);
     }
 
+    // Get all Equipment
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<EquipmentDTO> getAllEquipment(){
-        return equipmentService.getAllEquipment();
+    public ResponseEntity<List<EquipmentDTO>> getAllEquipment() {
+        List<EquipmentDTO> equipmentList = equipmentService.getAllEquipment();
+        return new ResponseEntity<>(equipmentList, HttpStatus.OK);
     }
-
 }

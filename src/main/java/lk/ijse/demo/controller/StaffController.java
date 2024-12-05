@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/staff")
-@CrossOrigin
+@CrossOrigin( origins = "http://localhost:63343")
 public class StaffController {
     @Autowired
     private StaffService staffService;

@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/field")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:63343", allowedHeaders = "*", allowCredentials = "true")
 public class FieldController {
     @Autowired
     private FieldService fieldService;
