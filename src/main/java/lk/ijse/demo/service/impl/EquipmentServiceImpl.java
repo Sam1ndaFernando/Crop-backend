@@ -135,5 +135,6 @@ public class EquipmentServiceImpl implements EquipmentService {
             return new SelectedErrorStatus(2, " Equipment Not Found");
         }
     }
-}
 
+
+}

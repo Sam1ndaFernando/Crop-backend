@@ -41,7 +41,7 @@ public class LogServiceImpl implements LogService {
     public void saveLog(LogDTO logDTO) {
         int number = 0;
         LogEntity log = logDAO.findLastRowNative();
-        if (log != null) {
+        if (log != null){
             String[] parts = log.getLogCode().split("-");
             number = Integer.parseInt(parts[1]);
         }
@@ -49,18 +49,18 @@ public class LogServiceImpl implements LogService {
         List<StaffEntity> staffEntities = new ArrayList<>();
         List<FieldEntity> fieldEntities = new ArrayList<>();
         List<CropEntity> cropEntities = new ArrayList<>();
-        for (String cropCode : logDTO.getCropList()) {
-            if (cropDAO.existsById(cropCode)) {
+        for (String cropCode :logDTO.getCropList()){
+            if (cropDAO.existsById(cropCode)){
                 cropEntities.add(cropDAO.getReferenceById(cropCode));
             }
         }
-        for (String fieldCode : logDTO.getFieldList()) {
-            if (fieldDAO.existsById(fieldCode)) {
+        for (String fieldCode:logDTO.getFieldList()){
+            if (fieldDAO.existsById(fieldCode)){
                 fieldEntities.add(fieldDAO.getReferenceById(fieldCode));
             }
         }
-        for (String staffCode : logDTO.getStaffList()) {
-            if (staffDAO.existsById(staffCode)) {
+        for (String staffCode:logDTO.getStaffList()){
+            if (staffDAO.existsById(staffCode)){
                 staffEntities.add(staffDAO.getReferenceById(staffCode));
             }
         }
@@ -68,11 +68,11 @@ public class LogServiceImpl implements LogService {
         logEntity.setCropList(cropEntities);
         logEntity.setStaffList(staffEntities);
         logEntity.setFieldList(fieldEntities);
-        for (FieldEntity fieldEntity : fieldEntities) {
+        for (FieldEntity fieldEntity:fieldEntities){
             fieldEntity.getLogList().add(logEntity);
         }
         LogEntity saveLog = logDAO.save(logEntity);
-        if (saveLog == null) {
+        if (saveLog==null){
             throw new DataPersistException("Field Is Not Saved.");
         }
     }
@@ -80,20 +80,20 @@ public class LogServiceImpl implements LogService {
     @Override
     public List<LogDTO> getAllLog() {
         List<LogDTO> logDTOS = new ArrayList<>();
-        for (LogEntity logEntity : logDAO.findAll()) {
+        for (LogEntity logEntity:logDAO.findAll()){
             List<String> fieldCode = new ArrayList<>();
             List<String> cropCode = new ArrayList<>();
             List<String> staffCode = new ArrayList<>();
-            for (FieldEntity fieldEntity : logEntity.getFieldList()) {
+            for (FieldEntity fieldEntity:logEntity.getFieldList()){
                 fieldCode.add(fieldEntity.getFieldCode());
             }
-            for (CropEntity cropEntity : logEntity.getCropList()) {
+            for (CropEntity cropEntity:logEntity.getCropList()){
                 cropCode.add(cropEntity.getCropCode());
             }
-            for (StaffEntity staffEntity : logEntity.getStaffList()) {
+            for (StaffEntity staffEntity:logEntity.getStaffList()){
                 staffCode.add(staffEntity.getMemberCode());
             }
-            LogDTO logDTO = mapping.toLogDTO(logEntity);
+            LogDTO logDTO = mapping.toLogGetAll(logEntity);
             logDTO.setFieldList(fieldCode);
             logDTO.setCropList(cropCode);
             logDTO.setStaffList(staffCode);
@@ -104,20 +104,20 @@ public class LogServiceImpl implements LogService {
 
     @Override
     public void deleteLog(String id) {
-        if (logDAO.existsById(id)) {
+        if (logDAO.existsById(id)){
             LogEntity logEntity = logDAO.getReferenceById(id);
             List<FieldEntity> fieldList = logEntity.getFieldList();
             List<CropEntity> cropList = logEntity.getCropList();
             List<StaffEntity> staffList = logEntity.getStaffList();
-            for (FieldEntity fieldEntity : fieldList) {
+            for (FieldEntity fieldEntity : fieldList){
                 List<LogEntity> logEntities = fieldEntity.getLogList();
                 logEntities.remove(logEntity);
             }
-            for (CropEntity cropEntity : cropList) {
+            for (CropEntity cropEntity : cropList){
                 List<LogEntity> logEntities = cropEntity.getLogList();
                 logEntities.remove(logEntity);
             }
-            for (StaffEntity staffEntity : staffList) {
+            for (StaffEntity staffEntity : staffList){
                 List<LogEntity> logEntities = staffEntity.getLogList();
                 logEntities.remove(logEntity);
             }
@@ -125,7 +125,7 @@ public class LogServiceImpl implements LogService {
             logEntity.getStaffList().clear();
             logEntity.getCropList().clear();
             logDAO.delete(logEntity);
-        } else {
+        }else {
             throw new CropNotFoundException("Id " + id + "Not Found");
         }
     }
@@ -133,25 +133,69 @@ public class LogServiceImpl implements LogService {
     @Override
     public void updateLog(String id, LogDTO logDTO) {
         Optional<LogEntity> tmpLog = logDAO.findById(id);
-        if (tmpLog.isPresent()) {
+        if (tmpLog.isPresent()){
             tmpLog.get().setDate(logDTO.getDate());
             tmpLog.get().setLogDetails(logDTO.getDate());
             tmpLog.get().setObservedImage(logDTO.getObservedImage());
+
+            List<StaffEntity> staffList = tmpLog.get().getStaffList();
+            List<CropEntity> cropList= tmpLog.get().getCropList();
+            List<FieldEntity> fieldList = tmpLog.get().getFieldList();
+
+           LogEntity referenceById = logDAO.getReferenceById(logDTO.getLogCode());
+
+            for (StaffEntity staff: staffList) {
+               List<LogEntity> logList = staff.getLogList();
+               logList.remove(referenceById);
+            }
+            for (CropEntity cropEntity: cropList) {
+                List<LogEntity> logList= cropEntity.getLogList();
+                logList.remove(referenceById);
+            }
+            for (FieldEntity fieldEntity:fieldList) {
+                List<LogEntity> logList = fieldEntity.getLogList();
+                logList.remove(referenceById);
+
+            }
+            tmpLog.get().getStaffList();
+            tmpLog.get().getCropList();
+            tmpLog.get().getFieldList();
+
             List<StaffEntity> staffEntities = new ArrayList<>();
             List<FieldEntity> fieldEntities = new ArrayList<>();
             List<CropEntity> cropEntities = new ArrayList<>();
-            for (String staffCode : logDTO.getStaffList()) {
-                staffEntities.add(staffDAO.getReferenceById(staffCode));
+
+            for (String staffId:logDTO.getStaffList() ) {
+                if (staffDAO.existsById(staffId)){
+                    staffEntities.add(staffDAO.getReferenceById(staffId));
+                }
             }
-            for (String cropCode : logDTO.getCropList()) {
-                cropEntities.add(cropDAO.getReferenceById(cropCode));
+            for (String fieldId:logDTO.getFieldList()) {
+                if (fieldDAO.existsById(fieldId)){
+                    fieldEntities.add(fieldDAO.getReferenceById(fieldId));
+                }
             }
-            for (String fieldCode : logDTO.getFieldList()) {
-                fieldEntities.add(fieldDAO.getReferenceById(fieldCode));
+            for (String cropID: logDTO.getCropList()) {
+                if (cropDAO.existsById(cropID)){
+                    cropEntities.add(cropDAO.getReferenceById(cropID));
+                }
             }
-            tmpLog.get().setStaffList(staffEntities);
-            tmpLog.get().setCropList(cropEntities);
-            tmpLog.get().setFieldList(fieldEntities);
+            tmpLog.get().getStaffList().addAll(staffEntities);
+            tmpLog.get().getFieldList().addAll(fieldEntities);
+            tmpLog.get().getCropList().addAll(cropEntities);
+
+//            for (String staffCode :logDTO.getStaffList()){
+//                staffEntities.add(staffDAO.getReferenceById(staffCode));
+//            }
+//            for (String cropCode :logDTO.getCropList()){
+//                cropEntities.add(cropDAO.getReferenceById(cropCode));
+//            }
+//            for (String fieldCode :logDTO.getFieldList()){
+//                fieldEntities.add(fieldDAO.getReferenceById(fieldCode));
+//            }
+//            tmpLog.get().setStaffList(staffEntities);
+//            tmpLog.get().setCropList(cropEntities);
+//            tmpLog.get().setFieldList(fieldEntities);
         }
     }
 

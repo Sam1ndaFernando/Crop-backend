@@ -1,6 +1,7 @@
 package lk.ijse.demo.service.impl;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import lk.ijse.demo.customerStatusCode.SelectedErrorStatus;
 import lk.ijse.demo.dao.StaffDAO;
 import lk.ijse.demo.dao.VehicleDAO;
@@ -31,30 +32,69 @@ public class VehicleServiceImpl implements VehicleService {
     private StaffDAO staffDAO;
 
     @Override
+//    public void saveVehicle(VehicleDTO vehicleDTO) {
+//        int number = 0;
+//        VehicleEntity vehicle = vehicleDAO.findLastRowNative();
+//        if (vehicle != null){
+//            String[] parts = vehicle.getVehicleCode().split("-");
+//            number = Integer.parseInt(parts[1]);
+//        }
+//        vehicleDTO.setVehicleCode("VEHICLE-" + ++number);
+//        VehicleEntity vehicleEntity = mapping.toVehicleEntity(vehicleDTO);
+//        if (vehicleDTO.getMemberCode() != null){
+//            StaffEntity referenceById = staffDAO.getReferenceById(vehicleDTO.getMemberCode());
+//            vehicleEntity.setStaff(referenceById);
+//        }
+//        VehicleEntity save = vehicleDAO.save(vehicleEntity);
+//        if (save == null){
+//            throw new DataPersistException("Vehicle Not Saved");
+//        }
+//    }
+
     public void saveVehicle(VehicleDTO vehicleDTO) {
         int number = 0;
-        VehicleEntity vehicle = vehicleDAO.findLastRowNative();
-        if (vehicle != null) {
-            String[] parts = vehicle.getVehicleCode().split("-");
-            number = Integer.parseInt(parts[1]);
+        VehicleEntity lastVehicle = vehicleDAO.findLastRowNative();
+        if (lastVehicle != null && lastVehicle.getVehicleCode() != null) {
+            String[] parts = lastVehicle.getVehicleCode().split("-");
+            if (parts.length == 2) {
+                number = Integer.parseInt(parts[1]);
+            } else {
+                throw new IllegalStateException("Invalid vehicle code format: " + lastVehicle.getVehicleCode());
+            }
         }
+        // Set the new vehicle code
         vehicleDTO.setVehicleCode("VEHICLE-" + ++number);
+
+        // Map to VehicleEntity
         VehicleEntity vehicleEntity = mapping.toVehicleEntity(vehicleDTO);
+
+        // Associate staff member if provided
         if (vehicleDTO.getMemberCode() != null) {
-            StaffEntity referenceById = staffDAO.getReferenceById(vehicleDTO.getMemberCode());
-            vehicleEntity.setStaff(referenceById);
+            StaffEntity staffReference = staffDAO.getReferenceById(vehicleDTO.getMemberCode());
+            if (staffReference == null) {
+                throw new EntityNotFoundException("Staff member not found for code: " + vehicleDTO.getMemberCode());
+            }
+            vehicleEntity.setStaff(staffReference);
         }
-        VehicleEntity save = vehicleDAO.save(vehicleEntity);
-        if (save == null) {
-            throw new DataPersistException("Vehicle Not Saved");
+
+        // Save to the database
+        VehicleEntity savedEntity = vehicleDAO.save(vehicleEntity);
+        if (savedEntity == null) {
+            throw new DataPersistException("Vehicle not saved.");
+        }else {
+            System.out.println("saveddddddddd");
         }
+
+        // Log success
+//        log.info("Vehicle saved successfully: {}", savedEntity.getVehicleCode());
     }
+
 
     @Override
     public List<VehicleDTO> getAllVehicle() {
         List<VehicleDTO> vehicleDTOS = new ArrayList<>();
         List<VehicleEntity> all = vehicleDAO.findAll();
-        for (VehicleEntity vehicle : all) {
+        for (VehicleEntity vehicle : all){
             VehicleDTO vehicleDTO = mapping.toVehicleDTO(vehicle);
             if (vehicle.getStaff() != null) {
                 String memberCode = vehicle.getStaff().getMemberCode();
@@ -68,9 +108,9 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public void deleteVehicle(String id) throws VehicleNotFoundException {
         Optional<VehicleEntity> selectedVehicle = vehicleDAO.findById(id);
-        if (!selectedVehicle.isPresent()) {
+        if (!selectedVehicle.isPresent()){
             throw new VehicleNotFoundException("Vehicle Id With" + id + "Not Found");
-        } else {
+        }else {
             vehicleDAO.deleteById(id);
         }
     }
@@ -78,7 +118,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public void updateVehicle(String id, VehicleDTO vehicleDTO) {
         Optional<VehicleEntity> tmpVehicle = vehicleDAO.findById(id);
-        if (tmpVehicle.isPresent()) {
+        if (tmpVehicle.isPresent()){
             tmpVehicle.get().setLicensePlateNumber(vehicleDTO.getLicensePlateNumber());
             tmpVehicle.get().setName(vehicleDTO.getName());
             tmpVehicle.get().setCategory(vehicleDTO.getCategory());
@@ -94,11 +134,11 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public VehicleStatus getSelectedVehicle(String id) {
-        if (vehicleDAO.existsById(id)) {
+        if(vehicleDAO.existsById(id)){
             var selectedVehicle = vehicleDAO.getReferenceById(id);
             return mapping.toVehicleDTO(selectedVehicle);
-        } else {
-            return new SelectedErrorStatus(2, "Selected Vehicle Not Found");
+        }else {
+            return new SelectedErrorStatus(2,"Selected Vehicle Not Found");
         }
     }
 }
