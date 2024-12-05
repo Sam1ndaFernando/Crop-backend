@@ -38,30 +38,30 @@ public class EquipmentServiceImpl implements EquipmentService {
     public void saveEquipment(EquipmentDTO equipmentDTO) {
         int number = 0;
         EquipmentEntity equipment = equipmentDAO.findLastRowNative();
-        if (equipment != null){
+        if (equipment != null) {
             String[] parts = equipment.getEquipmentCode().split("-");
             number = Integer.parseInt(parts[1]);
         }
         equipmentDTO.setEquipmentCode("EQUIPMENT-" + ++number);
         List<FieldEntity> fieldEntities = new ArrayList<>();
         List<StaffEntity> staffEntities = new ArrayList<>();
-        for (String fieldCode : equipmentDTO.getFieldList()){
+        for (String fieldCode : equipmentDTO.getFieldList()) {
             fieldEntities.add(fieldDAO.getReferenceById(fieldCode));
         }
         EquipmentEntity equipmentEntity = mapping.toEquipmentEntity(equipmentDTO);
-        for (FieldEntity field:fieldEntities){
+        for (FieldEntity field : fieldEntities) {
             field.getEquipmentsList().add(equipmentEntity);
         }
-        for (String staffCode : equipmentDTO.getStaffCodeList()){
+        for (String staffCode : equipmentDTO.getStaffCodeList()) {
             staffEntities.add(staffDAO.getReferenceById(staffCode));
         }
-        for (StaffEntity staff:staffEntities){
+        for (StaffEntity staff : staffEntities) {
             staff.getEquipmentList().add(equipmentEntity);
         }
         equipmentEntity.setFieldList(fieldEntities);
         equipmentEntity.setStaffCodeList(staffEntities);
         EquipmentEntity equEntity = equipmentDAO.save(equipmentEntity);
-        if (equEntity == null){
+        if (equEntity == null) {
             throw new DataPersistException("Equipment Not Saved!");
         }
     }
@@ -69,16 +69,16 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public List<EquipmentDTO> getAllEquipment() {
         List<EquipmentDTO> equipmentDTOS = new ArrayList<>();
-        for (EquipmentEntity equipmentEntity:equipmentDAO.findAll()){
+        for (EquipmentEntity equipmentEntity : equipmentDAO.findAll()) {
             List<String> fieldCode = new ArrayList<>();
             List<String> staffCode = new ArrayList<>();
-            for (FieldEntity field:equipmentEntity.getFieldList()){
+            for (FieldEntity field : equipmentEntity.getFieldList()) {
                 fieldCode.add(field.getFieldCode());
             }
-            for (StaffEntity staff:equipmentEntity.getStaffCodeList()){
+            for (StaffEntity staff : equipmentEntity.getStaffCodeList()) {
                 staffCode.add(staff.getMemberCode());
             }
-            EquipmentDTO equipmentDTO = mapping.toEquipmentDTO(equipmentEntity);
+            EquipmentDTO equipmentDTO = mapping.toEquipmentDTOGetAll(equipmentEntity);
             equipmentDTO.setFieldList(fieldCode);
             equipmentDTO.setStaffCodeList(staffCode);
             equipmentDTOS.add(equipmentDTO);
@@ -89,9 +89,9 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public void deleteEquipment(String id) {
         Optional<EquipmentEntity> selectedEquipment = equipmentDAO.findById(id);
-        if (!selectedEquipment.isPresent()){
+        if (!selectedEquipment.isPresent()) {
             throw new EquipmentNotFoundException("Id " + id + "Not Found");
-        }else {
+        } else {
             equipmentDAO.deleteById(id);
         }
     }
@@ -99,26 +99,26 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public void updateEquipment(String id, EquipmentDTO equipmentDTO) {
         Optional<EquipmentEntity> tmpEquipment = equipmentDAO.findById(id);
-        if (tmpEquipment.isPresent()){
+        if (tmpEquipment.isPresent()) {
             tmpEquipment.get().setName(equipmentDTO.getName());
             tmpEquipment.get().setType(equipmentDTO.getType());
             tmpEquipment.get().setStatus(equipmentDTO.getStatus());
             tmpEquipment.get().setAvailableCount(equipmentDTO.getAvailableCount());
             List<FieldEntity> fieldEntities = new ArrayList<>();
             List<StaffEntity> staffEntities = new ArrayList<>();
-            for (String fieldCode : equipmentDTO.getFieldList()){
+            for (String fieldCode : equipmentDTO.getFieldList()) {
                 fieldEntities.add(fieldDAO.getReferenceById(fieldCode));
             }
-            for (String staffCode : equipmentDTO.getStaffCodeList()){
+            for (String staffCode : equipmentDTO.getStaffCodeList()) {
                 staffEntities.add(staffDAO.getReferenceById(staffCode));
             }
             EquipmentEntity equipmentEntity = mapping.toEquipmentEntity(equipmentDTO);
             equipmentEntity.setFieldList(fieldEntities);
             equipmentEntity.setStaffCodeList(staffEntities);
-            for (FieldEntity field:fieldEntities){
+            for (FieldEntity field : fieldEntities) {
                 field.getEquipmentsList().add(equipmentEntity);
             }
-            for (StaffEntity staffs:staffEntities){
+            for (StaffEntity staffs : staffEntities) {
                 staffs.getEquipmentList().add(equipmentEntity);
             }
             tmpEquipment.get().setFieldList(equipmentEntity.getFieldList());
@@ -128,11 +128,11 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public EquipmentStatus getSelectedEquipment(String equipmentId) {
-        if(equipmentDAO.existsById(equipmentId)){
+        if (equipmentDAO.existsById(equipmentId)) {
             var selectedEquipment = equipmentDAO.getReferenceById(equipmentId);
             return mapping.toEquipmentDTO(selectedEquipment);
-        }else {
-            return new SelectedErrorStatus(2," Equipment Not Found");
+        } else {
+            return new SelectedErrorStatus(2, " Equipment Not Found");
         }
     }
 }
