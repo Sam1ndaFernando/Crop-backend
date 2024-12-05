@@ -1,6 +1,6 @@
 package lk.ijse.demo.exception;
 
-public class LogNotFoundException {
+public class LogNotFoundException extends Throwable {
     public LogNotFoundException() {
 
     }
