@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/crops")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:63343", allowedHeaders = "*", allowCredentials = "true")
 public class CropController {
     @Autowired
     private CropService cropService;
