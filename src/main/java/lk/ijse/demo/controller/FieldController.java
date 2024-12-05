@@ -1,4 +1,5 @@
 package lk.ijse.demo.controller;
+
 import lk.ijse.demo.dto.FieldStatus;
 import lk.ijse.demo.dto.impl.FieldDTO;
 import lk.ijse.demo.exception.DataPersistException;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,12 +22,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/field")
-@CrossOrigin(origins = "http://localhost:63343", allowedHeaders = "*", allowCredentials = "true")
+@CrossOrigin
 public class FieldController {
     @Autowired
     private FieldService fieldService;
 
-    //    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
+    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> saveField(
             @RequestPart("name") String fieldName,
@@ -33,9 +35,9 @@ public class FieldController {
             @RequestPart("extentSize") String extentSize,
             @RequestPart("fieldImage1") MultipartFile fieldImage1,
             @RequestPart("fieldImage2") MultipartFile fieldImage2,
-            @RequestPart("staffList") String staffList,
+             @RequestPart("staffList") String staffList,
             @RequestPart("cropList") String cropList
-            // @RequestPart("equipmentId")String equipmentList
+           // @RequestPart("equipmentId")String equipmentList //heduwa
 
     ) {
         try {
@@ -50,7 +52,7 @@ public class FieldController {
 //            List<String>eid=new ArrayList<>();
 //            if (equipmentList!=null){
 //                eid=IdListConverter.spiltLists(equipmentList);
-//            }
+//            } //heduwa
 
             var fieldDTO = new FieldDTO();
             fieldDTO.setName(fieldName);
@@ -64,7 +66,7 @@ public class FieldController {
 //            fieldDTO.setCropCodeList(cropCode);
             fieldDTO.setCropCodeList(staffCode); // Fixed assigning staff codes
             fieldDTO.setMemberCodeList(cropCode); // Correctly assigns crop codes
-            // fieldDTO.setEquipmentsList(eid); //
+           // fieldDTO.setEquipmentsList(eid); //heduwa
 
             fieldService.saveField(fieldDTO);
             return new ResponseEntity<>(HttpStatus.CREATED);
@@ -76,11 +78,12 @@ public class FieldController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     @GetMapping(value = "/{fieldId}",produces = MediaType.APPLICATION_JSON_VALUE)
     public FieldStatus getSelectedField(@PathVariable("fieldId") String fieldId){
         return fieldService.getSelectedField(fieldId);
     }
+    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     @GetMapping
     public List<FieldDTO> getAllField(){
         try {
@@ -90,7 +93,7 @@ public class FieldController {
             return new ArrayList<>();
         }
     }
-
+    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     @DeleteMapping(value = "/{fieldId}")
     public ResponseEntity<Void> deleteField(@PathVariable ("fieldId") String fieldId){
         try {
@@ -106,7 +109,7 @@ public class FieldController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     @PutMapping(value = "/{fieldId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateField(
             @PathVariable("fieldId") String fieldId,
@@ -177,5 +180,3 @@ public class FieldController {
     }
 
 }
-
-
