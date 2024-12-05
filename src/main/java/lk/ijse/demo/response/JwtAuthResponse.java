@@ -1,14 +1,14 @@
-package lk.ijse.demo.secure;
+package lk.ijse.demo.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 @Builder
-public class JWTAuthResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+public class JwtAuthResponse {
     private String token;
 }
