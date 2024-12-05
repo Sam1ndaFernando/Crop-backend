@@ -20,6 +20,8 @@ public class StaffEntity {
     private String memberCode;
     private String firstName;
     private String lastName;
+//    private String joinedDate;
+//    private String dateOfBirth;
     private LocalDate joinedDate;
     private LocalDate dateOfBirth;
     @Enumerated(EnumType.STRING)
@@ -34,6 +36,7 @@ public class StaffEntity {
     @Column(unique = true)
     private String email;
     @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     private Role role;
     @OneToMany(mappedBy = "staff")
     private List<VehicleEntity> vehicleList;
@@ -44,4 +47,6 @@ public class StaffEntity {
     @ManyToMany(mappedBy = "staffCodeList")
     private List<EquipmentEntity> equipmentList;
 
+
 }
+

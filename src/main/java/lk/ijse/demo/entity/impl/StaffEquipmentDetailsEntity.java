@@ -10,7 +10,7 @@ package lk.ijse.demo.entity.impl;//package lk.ijse.demo.entity.impl;
 //@Data
 //@Entity
 //@Table(name = "staffEquipmentDetails")
-public class StaffEquipmentDetailsEntity {
+//public class StaffEquipmentDetailsEntity {
 //    @Id
 //    private String id;
 //    private int useEquipmentCount;
@@ -20,4 +20,4 @@ public class StaffEquipmentDetailsEntity {
 //    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 //    @JoinColumn(name = "equipmentCode",referencedColumnName = "equipmentCode")
 //    private EquipmentEntity equipmentEntity;
-}
+//}

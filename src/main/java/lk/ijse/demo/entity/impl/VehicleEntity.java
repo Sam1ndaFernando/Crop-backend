@@ -15,7 +15,7 @@ public class VehicleEntity {
     @Id
     private String vehicleCode;
     private String licensePlateNumber;
-    private String Name;
+    private String name;
     private String category;
     private String fuelType;
     private String status;
@@ -23,4 +23,5 @@ public class VehicleEntity {
     @ManyToOne
     @JoinColumn(name = "memberCode")
     private StaffEntity staff;
+
 }
