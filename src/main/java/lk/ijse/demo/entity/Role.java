@@ -1,5 +1,5 @@
 package lk.ijse.demo.entity;
 
 public enum Role {
-    ADMIN,SCIENTIST,OTHER,MANAGER
+    MANAGER,ADMINISTRATIVE,SCIENTIST,OTHER
 }
