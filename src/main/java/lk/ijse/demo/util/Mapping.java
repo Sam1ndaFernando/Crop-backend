@@ -5,7 +5,6 @@ import lk.ijse.demo.entity.impl.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,17 +14,17 @@ public class Mapping {
     @Autowired
     ModelMapper modelMapper;
 
-//    public UserEntity toUserEntity(UserDTO userDTO){
-//        return modelMapper.map(userDTO,UserEntity.class);
-//    }
-//
-//    public UserDTO toUserDTO(UserEntity userentity){
-//        return modelMapper.map(userentity,UserDTO.class);
-//    }
-//
-//    public List<UserDTO> userList(List<UserEntity> userList){
-//        return modelMapper.map(userList,new TypeToken<List<UserDTO>>(){}.getType());
-//    }
+    public UserEntity toUserEntity(UserDTO userDTO){
+        return modelMapper.map(userDTO,UserEntity.class);
+    }
+
+    public UserDTO toUserDTO(UserEntity userentity){
+        return modelMapper.map(userentity,UserDTO.class);
+    }
+
+    public List<UserDTO> userList(List<UserEntity> userList){
+        return modelMapper.map(userList,new TypeToken<List<UserDTO>>(){}.getType());
+    }
 
     public CropEntity toCropEntity(CropDTO cropDTO){
         return modelMapper.map(cropDTO,CropEntity.class);
@@ -164,7 +163,10 @@ public class Mapping {
         return modelMapper.map(vehicleEntity,new TypeToken<List<VehicleDTO>>(){}.getType());
     }
 
+
+
 //    public StaffEquipmentDetailsEntity toStaffEquDetailsEntity(StaffEquipmentDetailsDTO staffEquDTO){
 //        return modelMapper.map(staffEquDTO,StaffEquipmentDetailsEntity.class);
 //    }
+
 }
