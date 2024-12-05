@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,11 +22,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/logs")
-@CrossOrigin(origins = "http://localhost:63343")
 public class LogController {
     @Autowired
     private LogService logService;
-    //    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
+    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> saveLog(
             @RequestParam("date") String date,
@@ -52,7 +52,7 @@ public class LogController {
             logDTO.setDate(date);
             logDTO.setLogDetails(logDetails);
             logDTO.setObservedImage(IdGenerate.imageBase64(observedImage.getBytes()));
-            // logDTO.setObservedImage(observedImage);
+           // logDTO.setObservedImage(observedImage);
             logDTO.setStaffList(staffListt);
             logDTO.setCropList(cropListt);
             logDTO.setFieldList(fieldListt);
@@ -68,12 +68,14 @@ public class LogController {
         }
 
     }
+
     @GetMapping(value = "/{logId}",produces = MediaType.APPLICATION_JSON_VALUE)
-//    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
+    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     public LogStatus getSelectedLog(@PathVariable("logId") String logId){
 
         return null;
     }
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @RolesAllowed({"MANAGER","ADMINISTRATIVE","SCIENTIST"})
     public List<LogDTO> getAllLog(){
@@ -81,7 +83,7 @@ public class LogController {
     }
 
     @DeleteMapping(value = "/{logId}")
-//    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
+    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     public ResponseEntity<Void> deleteLog(@PathVariable ("logId") String logId){
         try {
             if (!Regex.idValidator(logId).matches()){
@@ -95,7 +97,7 @@ public class LogController {
     }
 
     @PutMapping(value = "/{logId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
+    @PreAuthorize("hasAnyRole('MANAGER','SCIENTIST')")
     public ResponseEntity<Void> updateLog(
             @PathVariable(value = "logId") String logId,
             @RequestParam(value = "date") String date,
@@ -133,7 +135,7 @@ public class LogController {
 //        );
 
         try {
-            //  logService.updateLog(logId, logDTO);
+          //  logService.updateLog(logId, logDTO);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (DataPersistException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
